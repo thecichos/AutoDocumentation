@@ -16,5 +16,6 @@
 		"psr-4": {
 			"AutoDocumentation\\": "AutoDocumentation"
 		}
-	}
+	},
+	"minimum-stability": "stable"
 }
