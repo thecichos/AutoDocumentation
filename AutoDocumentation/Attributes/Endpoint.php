@@ -11,6 +11,7 @@ class Endpoint
 		public string $path,
 		public string $summary,
 		public array $responses = [],
-		public bool $deprecated = false
+		public bool $deprecated = false,
+		public ?string $description = null
 	) {}
 }
