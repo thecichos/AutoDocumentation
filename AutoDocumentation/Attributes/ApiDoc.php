@@ -9,8 +9,8 @@ class ApiDoc
 {
 	public function __construct(
 		public string $description,
-		public string $version = "1.0.0",
 		public array $tags,
+		public string $version = "1.0.0",
 		public bool $deprecated = false
 	) {}
 }
