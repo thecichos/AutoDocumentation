@@ -8,6 +8,7 @@ use Attribute;
 class Property {
 	public function __construct(
 		public string $description,
-		public mixed $example = null
+		public mixed $example = null,
+		public bool $deprecated = false
 	) {}
 }

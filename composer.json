@@ -14,9 +14,10 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"AutoDocumentation\\": "AutoDocumentation"
+			"AutoDocumentation\\": "AutoDocumentation",
+			"Examples\\": "Examples"
 		}
 	},
 	"minimum-stability": "dev",
-	"version": "1.0.0"
+	"version": "1.1.0"
 }
