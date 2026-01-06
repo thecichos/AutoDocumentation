@@ -81,7 +81,7 @@ class HtmlRenderer
 					$methodClass = 'method-' . strtolower($endpoint['http_method']);
 					$html .= sprintf(
 						'<li><a href="#%s"><span class="method-badge %s">%s</span> %s</a></li>',
-						htmlspecialchars($endpoint['slug']),
+						htmlspecialchars($controller['name']."-".$endpoint['slug']),
 						$methodClass,
 						htmlspecialchars($endpoint['http_method']),
 						htmlspecialchars($endpoint['path'])
@@ -168,7 +168,7 @@ class HtmlRenderer
 		$html .= '</div>';
 
 		foreach ($controller['endpoints'] as $endpoint) {
-			$html .= $this->renderEndpoint($endpoint);
+			$html .= $this->renderEndpoint($endpoint, $controller['name']);
 		}
 
 		$html .= '</section>';
@@ -176,12 +176,12 @@ class HtmlRenderer
 		return $html;
 	}
 
-	private function renderEndpoint(array $endpoint): string
+	private function renderEndpoint(array $endpoint, string $controllerName): string
 	{
 		$methodClass = 'method-' . strtolower($endpoint['http_method']);
 		$deprecated = $endpoint['deprecated'] ? '<span class="badge badge-deprecated">Deprecated</span>' : '';
 
-		$html = '<div class="endpoint" id="' . htmlspecialchars($endpoint['slug']) . '">';
+		$html = '<div class="endpoint" id="' . htmlspecialchars($controllerName."-".$endpoint['slug']) . '">';
 		$html .= '<div class="endpoint-header">';
 		$html .= '<span class="method-badge ' . $methodClass . '">' . htmlspecialchars($endpoint['http_method']) . '</span>';
 		$html .= '<code class="path">' . htmlspecialchars($endpoint['path']) . '</code>';
