@@ -8,6 +8,11 @@ use AutoDocumentation\Attributes\Property;
 #[Documentable('Product category for organization', group: 'Shop')]
 class Category
 {
+	#[Property('The blue number', example: 42)]
+	protected int $theBlue;
+	#[Property('The red string', example: 'foo')]
+	private string $theRed;
+
 	#[Property('Category ID', example: 5)]
 	public int $id;
 

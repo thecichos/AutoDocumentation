@@ -84,7 +84,8 @@ class TypeRegistry
     {
         $properties = [];
 
-        foreach ($class->getProperties(ReflectionProperty::IS_PUBLIC) as $prop) {
+        foreach ($class->getProperties() as $prop) {
+
             $attr = $prop->getAttributes(Property::class)[0] ?? null;
             $propDoc = $attr?->newInstance();
 
@@ -100,7 +101,8 @@ class TypeRegistry
                 nullable: $nullable,
                 description: $propDoc?->description ?? '',
                 example: $propDoc?->example,
-                deprecated: $propDoc?->deprecated ?? false
+                deprecated: $propDoc?->deprecated ?? false,
+				accessibility: $prop->isPublic() ? 0 : ($prop->isProtected() ? 1 : 2),
             );
         }
 

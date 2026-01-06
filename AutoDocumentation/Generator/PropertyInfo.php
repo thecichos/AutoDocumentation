@@ -10,6 +10,7 @@ readonly class PropertyInfo
 		public bool $nullable,
 		public string $description,
 		public mixed $example = null,
-		public bool $deprecated = false
+		public bool $deprecated = false,
+		public int $accessibility = 0 // 0 = public, 1 = protected, 2 = private
 	) {}
 }

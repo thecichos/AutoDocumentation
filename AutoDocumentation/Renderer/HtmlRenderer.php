@@ -304,7 +304,7 @@ class HtmlRenderer
 
 		if (!empty($type->properties)) {
 			$html .= '<table class="properties-table">';
-			$html .= '<thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>';
+			$html .= '<thead><tr><th>Accessibility</th><th>Property</th><th>Type</th><th>Description</th></tr></thead>';
 			$html .= '<tbody>';
 
 			foreach ($type->properties as $prop) {
@@ -323,6 +323,7 @@ class HtmlRenderer
 				}
 
 				$html .= '<tr>';
+				$html .= '<td>'.(["<span class='badge badge-public'>public</span>", "<span class='badge badge-protected'>protected</span>", "<span class='badge badge-private'>private</span>"][$prop->accessibility]) . '</td>';
 				$html .= '<td><code>' . htmlspecialchars($prop->name) . '</code> ' . $deprecated . '</td>';
 				$html .= '<td>' . $typeHtml . '</td>';
 				$html .= '<td>' . $description . '</td>';
@@ -511,6 +512,9 @@ class HtmlRenderer
         .badge-required { background: #f93e3e; color: #fff; }
         .badge-optional { background: #49cc90; color: #fff; }
         .badge-in { background: #61affe; color: #fff; }
+        .badge-public { background: #61affe; color: #fff; }
+        .badge-protected { background: #fca130; color: #fff; }
+        .badge-private { background: #f93e3e; color: #fff; }
         
         .tags {
             display: flex;
