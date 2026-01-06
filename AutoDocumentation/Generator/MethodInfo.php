@@ -2,15 +2,17 @@
 
 namespace AutoDocumentation\Generator;
 
-readonly class PropertyInfo
+readonly class MethodInfo
 {
 	public function __construct(
 		public string $name,
-		public string $type,
-		public bool $nullable,
 		public string $description,
-		public mixed $example = null,
-		public bool $deprecated = false,
+		public array $parameters,
+		public ?string $returnType,
+		public ?string $returnDescription,
+		public ?string $example,
+		public bool $deprecated,
+		public bool $isStatic,
 		public Accessibility $accessibility = Accessibility::Public,
 	) {}
 }

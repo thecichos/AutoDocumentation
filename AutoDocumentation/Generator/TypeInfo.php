@@ -13,7 +13,8 @@ readonly class TypeInfo
 		public string $slug,
 		public string $group,
 		public string $description,
-		public array $properties = []
+		public array $properties = [],
+		public array $methods = []
 	) {}
 
 	public function getAnchor(): string

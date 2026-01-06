@@ -323,13 +323,31 @@ class HtmlRenderer
 				}
 
 				$html .= '<tr>';
-				$html .= '<td>'.(["<span class='badge badge-public'>public</span>", "<span class='badge badge-protected'>protected</span>", "<span class='badge badge-private'>private</span>"][$prop->accessibility]) . '</td>';
+				$html .= '<td>'.$prop->accessibility->html(). '</td>';
 				$html .= '<td><code>' . htmlspecialchars($prop->name) . '</code> ' . $deprecated . '</td>';
 				$html .= '<td>' . $typeHtml . '</td>';
 				$html .= '<td>' . $description . '</td>';
 				$html .= '</tr>';
 			}
 
+			$html .= '</tbody></table>';
+		}
+
+		if (!empty($type->methods)) {
+			$html .= '<table class="methods-table">';
+			$html .= '<thead><tr><th>Accessibility</th><th>Method</th><th>Description</th><th>Return</th></tr></thead>';
+			$html .= '<tbody>';
+			foreach ($type->methods as $method) {
+
+				$typeHtml = $this->typeRenderer->renderFromString($method->returnType);
+
+				$html .= '<tr>';
+				$html .= '<td>'.$method->accessibility->html(). '</td>';
+				$html .= '<td>'. htmlspecialchars($method->name) . '</td>';
+				$html .= '<td>' . htmlspecialchars($method->description) . '</td>';
+				$html .= '<td>' . $typeHtml . '</td>';
+				$html .= '</tr>';
+			}
 			$html .= '</tbody></table>';
 		}
 
