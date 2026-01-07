@@ -12,8 +12,8 @@ use Examples\Models\User;
 
 #[ApiDoc(
 	description: 'Manage user accounts and profiles',
-	version: '2.0',
 	tags: ['users', 'accounts'],
+	version: '2.0',
 	deprecated: false
 )]
 class UserController

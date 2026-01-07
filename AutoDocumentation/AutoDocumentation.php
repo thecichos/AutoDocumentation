@@ -6,6 +6,7 @@ use AutoDocumentation\Generator\DocGenerator;
 use AutoDocumentation\Generator\TypeRegistry;
 use AutoDocumentation\Renderer\HtmlRenderer;
 use AutoDocumentation\Renderer\JsonRenderer;
+use AutoDocumentation\Renderer\MDRenderer;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ReflectionClass;
@@ -16,6 +17,7 @@ class AutoDocumentation
 	private DocGenerator $generator;
 	private HtmlRenderer $htmlRenderer;
 	private JsonRenderer $jsonRenderer;
+	private MDRenderer $markdownRenderer;
 
 	/** @var class-string[] */
 	private array $controllers = [];
@@ -26,6 +28,7 @@ class AutoDocumentation
 		$this->generator = new DocGenerator($this->registry);
 		$this->htmlRenderer = new HtmlRenderer($this->registry);
 		$this->jsonRenderer = new JsonRenderer($this->registry);
+		$this->markdownRenderer = new MDRenderer($this->registry);
 	}
 
 	/**
@@ -102,6 +105,12 @@ class AutoDocumentation
 		return $this->jsonRenderer->render($docs, $this->registry->getAll(), $info);
 	}
 
+	public function toMarkdown(array $info = []): string
+	{
+		$docs = $this->generate();
+		return $this->markdownRenderer->render($docs, $this->registry->getAll(), $info);
+	}
+
 	/**
 	 * Save HTML documentation to file
 	 */
@@ -117,6 +126,24 @@ class AutoDocumentation
 	public function saveOpenApi(string $filePath, array $info = []): self
 	{
 		file_put_contents($filePath, $this->toOpenApi($info));
+		return $this;
+	}
+
+	public function saveMarkdown(string $filePath, array $info = []): self
+	{
+
+		$f = fopen($filePath, 'w+');
+
+		echo $filePath;
+
+		print_r($f);
+
+		if ($f === false) {
+			throw new \RuntimeException("Failed to open file for writing: $filePath");
+		}
+		fwrite($f, $this->toMarkdown($info));
+		fclose($f);
+
 		return $this;
 	}
 

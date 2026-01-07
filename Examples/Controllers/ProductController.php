@@ -12,8 +12,8 @@ use Examples\Models\Product;
 
 #[ApiDoc(
 	description: 'Product catalog management',
-	version: '1.5',
 	tags: ['products', 'shop'],
+	version: '1.5',
 	deprecated: false
 )]
 class ProductController

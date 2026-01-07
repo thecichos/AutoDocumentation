@@ -38,6 +38,9 @@ if ($format === 'json') {
 		'version' => '2.0.0',
 		'description' => 'Auto-generated API documentation demo'
 	]);
+} elseif ($format === "md") {
+	header('Content-Type: text/markdown; charset=utf-8');
+	echo $docs->toMarkdown();
 } else {
 	header('Content-Type: text/html; charset=utf-8');
 	echo $docs->toHtml();
