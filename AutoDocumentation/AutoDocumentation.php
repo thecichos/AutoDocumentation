@@ -3,6 +3,7 @@
 namespace AutoDocumentation;
 
 use AutoDocumentation\Attributes\Documentable;
+use AutoDocumentation\Attributes\Property;
 use AutoDocumentation\Generator\DocGenerator;
 use AutoDocumentation\Generator\TypeRegistry;
 use AutoDocumentation\Renderer\HtmlRenderer;
@@ -135,10 +136,6 @@ class AutoDocumentation
 	{
 
 		$f = fopen($filePath, 'w+');
-
-		echo $filePath;
-
-		print_r($f);
 
 		if ($f === false) {
 			throw new \RuntimeException("Failed to open file for writing: $filePath");

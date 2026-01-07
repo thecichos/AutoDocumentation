@@ -9,11 +9,13 @@ use ReflectionClass;
 use ReflectionProperty;
 use ReflectionMethod;
 
+#[Documentable('Parses classes with the #[Documentable] attribute and extracts their metadata (properties, methods, descriptions) into TypeInfo objects.', group: 'Core')]
 class TypeRegistry
 {
 	/** @var array<class-string, TypeInfo> */
 	private array $types = [];
 
+	#[Method('Registers a class with the #[Documentable] attribute, extracting its metadata into a TypeInfo object')]
 	public function register(ReflectionClass $class): void
 	{
 		$attr = $class->getAttributes(Documentable::class)[0] ?? null;
@@ -35,6 +37,7 @@ class TypeRegistry
 		);
 	}
 
+	#[Method('Resolves a type by its fully-qualified class name or short name, returning null if not found')]
 	public function resolve(string $typeName): ?TypeInfo
 	{
 		// Direct FQCN match
@@ -52,6 +55,7 @@ class TypeRegistry
 		return null;
 	}
 
+	#[Method('Checks whether a type name can be linked in documentation (i.e., is registered)')]
 	public function isLinkable(string $typeName): bool
 	{
 		return $this->resolve($typeName) !== null;
@@ -60,6 +64,7 @@ class TypeRegistry
 	/**
 	 * @return array<class-string, TypeInfo>
 	 */
+	#[Method('Returns all registered types as an associative array keyed by FQCN')]
 	public function getAll(): array
 	{
 		return $this->types;
@@ -68,6 +73,7 @@ class TypeRegistry
 	/**
 	 * @return array<string, TypeInfo[]> Grouped by category
 	 */
+	#[Method('Returns all registered types grouped by their category/group name')]
 	public function getAllGrouped(): array
 	{
 		$grouped = [];
@@ -83,6 +89,7 @@ class TypeRegistry
 	/**
 	 * @return PropertyInfo[]
 	 */
+	#[Method('Extracts all properties from a class and converts them to PropertyInfo objects')]
 	private function extractProperties(ReflectionClass $class): array
 	{
 		$properties = [];
@@ -116,6 +123,7 @@ class TypeRegistry
 		return $properties;
 	}
 
+	#[Method('Extracts all documented methods from a class and converts them to MethodInfo objects')]
 	private function extractMethods(ReflectionClass $class): array {
 		$methods = [];
 
@@ -171,6 +179,7 @@ class TypeRegistry
 		return $methods;
 	}
 
+	#[Method('Parses the @param tag from a method docblock to extract the type for a specific parameter')]
 	private function parseMethodParamDocBlock(ReflectionMethod $method, string $paramName): ?string
 	{
 		$docComment = $method->getDocComment();
@@ -188,6 +197,7 @@ class TypeRegistry
 		return null;
 	}
 
+	#[Method('Parses the @return tag from a method docblock to extract the return type')]
 	private function parseMethodReturnDocBlock(ReflectionMethod $method): ?string
 	{
 		$docComment = $method->getDocComment();
@@ -203,6 +213,7 @@ class TypeRegistry
 		return null;
 	}
 
+	#[Method('Parses the @return tag from a method docblock to extract the return description')]
 	private function parseMethodReturnDescription(ReflectionMethod $method): ?string
 	{
 		$docComment = $method->getDocComment();
@@ -218,6 +229,7 @@ class TypeRegistry
 		return null;
 	}
 
+	#[Method('Parses the @var tag from a property docblock to extract the type hint')]
 	private function parseDocBlockType(ReflectionProperty $prop): ?string
 	{
 		$docComment = $prop->getDocComment();
@@ -234,6 +246,7 @@ class TypeRegistry
 		return null;
 	}
 
+	#[Method('Converts a PascalCase class name to a URL-friendly kebab-case slug')]
 	private function slugify(string $name): string
 	{
 		return strtolower(preg_replace('/(?<!^)[A-Z]/', '-$0', $name));
