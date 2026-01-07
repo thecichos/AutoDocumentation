@@ -4,6 +4,7 @@ namespace AutoDocumentation\Generator;
 
 use AutoDocumentation\Attributes\Method;
 use AutoDocumentation\Attributes\Documentable;
+use AutoDocumentation\Attributes\Param;
 use AutoDocumentation\Attributes\Property;
 use ReflectionClass;
 use ReflectionProperty;
@@ -16,7 +17,10 @@ class TypeRegistry
 	private array $types = [];
 
 	#[Method('Registers a class with the #[Documentable] attribute, extracting its metadata into a TypeInfo object')]
-	public function register(ReflectionClass $class): void
+	public function register(
+		#[Param(description: 'Reflection of the class to register')]
+		ReflectionClass $class
+	): void
 	{
 		$attr = $class->getAttributes(Documentable::class)[0] ?? null;
 
@@ -38,7 +42,10 @@ class TypeRegistry
 	}
 
 	#[Method('Resolves a type by its fully-qualified class name or short name, returning null if not found')]
-	public function resolve(string $typeName): ?TypeInfo
+	public function resolve(
+		#[Param(description: 'The FQCN or short name of the type to resolve', example: 'User')]
+		string $typeName
+	): ?TypeInfo
 	{
 		// Direct FQCN match
 		if (isset($this->types[$typeName])) {
@@ -56,7 +63,10 @@ class TypeRegistry
 	}
 
 	#[Method('Checks whether a type name can be linked in documentation (i.e., is registered)')]
-	public function isLinkable(string $typeName): bool
+	public function isLinkable(
+		#[Param(description: 'The type name to check for linkability', example: 'User')]
+		string $typeName
+	): bool
 	{
 		return $this->resolve($typeName) !== null;
 	}
@@ -90,7 +100,10 @@ class TypeRegistry
 	 * @return PropertyInfo[]
 	 */
 	#[Method('Extracts all properties from a class and converts them to PropertyInfo objects')]
-	private function extractProperties(ReflectionClass $class): array
+	private function extractProperties(
+		#[Param(description: 'Reflection of the class to extract properties from')]
+		ReflectionClass $class
+	): array
 	{
 		$properties = [];
 
@@ -124,7 +137,10 @@ class TypeRegistry
 	}
 
 	#[Method('Extracts all documented methods from a class and converts them to MethodInfo objects')]
-	private function extractMethods(ReflectionClass $class): array {
+	private function extractMethods(
+		#[Param(description: 'Reflection of the class to extract methods from')]
+		ReflectionClass $class
+	): array {
 		$methods = [];
 
 		foreach ($class->getMethods() as $method) {
@@ -180,7 +196,12 @@ class TypeRegistry
 	}
 
 	#[Method('Parses the @param tag from a method docblock to extract the type for a specific parameter')]
-	private function parseMethodParamDocBlock(ReflectionMethod $method, string $paramName): ?string
+	private function parseMethodParamDocBlock(
+		#[Param(description: 'Reflection of the method containing the docblock')]
+		ReflectionMethod $method,
+		#[Param(description: 'Name of the parameter to find in the docblock', example: 'userId')]
+		string $paramName
+	): ?string
 	{
 		$docComment = $method->getDocComment();
 
@@ -198,7 +219,10 @@ class TypeRegistry
 	}
 
 	#[Method('Parses the @return tag from a method docblock to extract the return type')]
-	private function parseMethodReturnDocBlock(ReflectionMethod $method): ?string
+	private function parseMethodReturnDocBlock(
+		#[Param(description: 'Reflection of the method containing the docblock')]
+		ReflectionMethod $method
+	): ?string
 	{
 		$docComment = $method->getDocComment();
 
@@ -214,7 +238,10 @@ class TypeRegistry
 	}
 
 	#[Method('Parses the @return tag from a method docblock to extract the return description')]
-	private function parseMethodReturnDescription(ReflectionMethod $method): ?string
+	private function parseMethodReturnDescription(
+		#[Param(description: 'Reflection of the method containing the docblock')]
+		ReflectionMethod $method
+	): ?string
 	{
 		$docComment = $method->getDocComment();
 
@@ -230,7 +257,10 @@ class TypeRegistry
 	}
 
 	#[Method('Parses the @var tag from a property docblock to extract the type hint')]
-	private function parseDocBlockType(ReflectionProperty $prop): ?string
+	private function parseDocBlockType(
+		#[Param(description: 'Reflection of the property containing the docblock')]
+		ReflectionProperty $prop
+	): ?string
 	{
 		$docComment = $prop->getDocComment();
 
@@ -247,7 +277,10 @@ class TypeRegistry
 	}
 
 	#[Method('Converts a PascalCase class name to a URL-friendly kebab-case slug')]
-	private function slugify(string $name): string
+	private function slugify(
+		#[Param(description: 'The PascalCase name to convert', example: 'UserController')]
+		string $name
+	): string
 	{
 		return strtolower(preg_replace('/(?<!^)[A-Z]/', '-$0', $name));
 	}

@@ -26,7 +26,10 @@ class TypeRenderer
 		description: 'Renders a ReflectionType as an HTML string, handling union, intersection, and named types',
 		example: '<a href="#type-user">User</a>|<span class="type-builtin">null</span>'
 	)]
-	public function render(?ReflectionType $type): string
+	public function render(
+		#[Param(description: 'The reflection type to render, or null for mixed type', required: false)]
+		?ReflectionType $type
+	): string
 	{
 		if ($type === null) {
 			return $this->wrapBuiltin('mixed');
@@ -59,7 +62,10 @@ class TypeRenderer
 		description: 'Renders a type from its string representation, supporting nullable, arrays, generics, and unions',
 		example: 'User[] → <a href="#type-user">User</a>[]'
 	)]
-	public function renderFromString(string $typeName): string
+	public function renderFromString(
+		#[Param(description: 'The type name as a string, e.g. "User", "?string", "User[]"', example: 'User[]')]
+		string $typeName
+	): string
 	{
 		// Handle nullable: ?Type
 		if (str_starts_with($typeName, '?')) {
@@ -100,7 +106,10 @@ class TypeRenderer
 		description: 'Renders a ReflectionNamedType with nullable prefix if applicable',
 		example: '?<a href="#type-user">User</a>'
 	)]
-	private function renderNamedType(ReflectionNamedType $type): string
+	private function renderNamedType(
+		#[Param(description: 'The reflection named type to render')]
+		ReflectionNamedType $type
+	): string
 	{
 		$name = $type->getName();
 		$prefix = $type->allowsNull() && $name !== 'null' ? '?' : '';
@@ -112,7 +121,10 @@ class TypeRenderer
 		description: 'Renders a type name as a link if documented, otherwise as a builtin type span',
 		example: '<a href="#type-user" class="type-link" title="User model">User</a>'
 	)]
-	private function renderTypeName(string $name): string
+	private function renderTypeName(
+		#[Param(description: 'The type name to render', example: 'User')]
+		string $name
+	): string
 	{
 		$typeInfo = $this->registry->resolve($name);
 
@@ -132,7 +144,10 @@ class TypeRenderer
 		description: 'Wraps a builtin type name in an HTML span element',
 		example: '<span class="type-builtin">string</span>'
 	)]
-	private function wrapBuiltin(string $name): string
+	private function wrapBuiltin(
+		#[Param(description: 'The builtin type name to wrap', example: 'string')]
+		string $name
+	): string
 	{
 		return sprintf(
 			'<span class="type-builtin">%s</span>',
@@ -148,7 +163,10 @@ class TypeRenderer
 		description: 'Parses generic inner types from a string, correctly handling nested generics',
 		example: 'array<string, Collection<User>> → ["string", "Collection<User>"]'
 	)]
-	private function parseGenericInner(string $inner): array
+	private function parseGenericInner(
+		#[Param(description: 'The inner content of a generic type declaration', example: 'string, Collection<User>')]
+		string $inner
+	): array
 	{
 		$types = [];
 		$current = '';
