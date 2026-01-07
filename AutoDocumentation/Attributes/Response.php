@@ -11,7 +11,5 @@ class Response
 		public int $statusCode,
 		public string $description,
 		public ?string $type = null
-	)
-	{
-	}
+	){}
 }
