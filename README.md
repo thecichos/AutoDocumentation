@@ -37,11 +37,11 @@ Parses classes with the #[Documentable] attribute and extracts their metadata (p
 | Visibility | Method | Description | Returns |
 |------------|--------|-------------|--------|
 | Public | `register()` | Registers a class with the #[Documentable] attribute, extracting its metadata into a TypeInfo object | `void` |
-| Public | `resolve()` | Resolves a type by its fully-qualified class name or short name, returning null if not found | [`TypeInfo`](#type-type-info) |
+| Public | `resolve()` | Resolves a type by its fully-qualified class name or short name, returning null if not found | [`TypeInfo`](#TypeInfo-type-type-info) |
 | Public | `isLinkable()` | Checks whether a type name can be linked in documentation (i.e., is registered) | `bool` |
 | Public | `getAll()` | Returns all registered types as an associative array keyed by FQCN | `array<class-string,` |
 | Public | `getAllGrouped()` | Returns all registered types grouped by their category/group name | `array<string,` |
-| Private | `extractProperties()` | Extracts all properties from a class and converts them to PropertyInfo objects | [`PropertyInfo`](#type-property-info)[] |
+| Private | `extractProperties()` | Extracts all properties from a class and converts them to PropertyInfo objects | [`PropertyInfo`](#PropertyInfo-type-property-info)[] |
 | Private | `extractMethods()` | Extracts all documented methods from a class and converts them to MethodInfo objects | `array` |
 | Private | `parseMethodParamDocBlock()` | Parses the @param tag from a method docblock to extract the type for a specific parameter | `string` |
 | Private | `parseMethodReturnDocBlock()` | Parses the @return tag from a method docblock to extract the return type | `string` |
@@ -88,7 +88,7 @@ Renders PHP type information as HTML with links to documented types
 
 | Visibility | Property | Type | Description |
 |------------|----------|------|-------------|
-| Private | `registry` | [`TypeRegistry`](#type-type-registry) |  |
+| Private | `registry` | [`TypeRegistry`](#TypeRegistry-type-type-registry) |  |
 
 **Methods:**
 
@@ -173,7 +173,7 @@ Auto-generated documentation for your API
 
 | Visibility | Property | Type | Description |
 |------------|----------|------|-------------|
-| Private | `registry` | [`TypeRegistry`](#type-type-registry) |  |
+| Private | `registry` | [`TypeRegistry`](#TypeRegistry-type-type-registry) |  |
 | Private | `generator` | `AutoDocumentation\Generator\DocGenerator` |  |
 | Private | `htmlRenderer` | `AutoDocumentation\Renderer\HtmlRenderer` |  |
 | Private | `jsonRenderer` | `AutoDocumentation\Renderer\JsonRenderer` |  |

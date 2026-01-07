@@ -319,7 +319,7 @@ class MDRenderer
 		$typeInfo = $this->registry->resolve($typeName);
 
 		if ($typeInfo !== null) {
-			$anchor = 'type-' . $typeInfo->slug;
+			$anchor = $typeInfo->shortName.'-type-'.$typeInfo->slug;
 			return $prefix . "[`{$typeInfo->shortName}`](#{$anchor})" . $suffix;
 		}
 
