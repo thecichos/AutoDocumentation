@@ -2,6 +2,13 @@
 
 namespace AutoDocumentation\Generator;
 
+use AutoDocumentation\Attributes\Documentable;
+
+#[Documentable(
+	"Enum that makes it more streamlined to handle accessibility rules",
+	"accessibility",
+	"Generator"
+)]
 enum Accessibility: int
 {
 	case Public = 0;

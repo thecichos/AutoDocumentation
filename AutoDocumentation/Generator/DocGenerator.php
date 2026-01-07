@@ -3,6 +3,7 @@
 namespace AutoDocumentation\Generator;
 
 use AutoDocumentation\Attributes\ApiDoc;
+use AutoDocumentation\Attributes\Documentable;
 use AutoDocumentation\Attributes\Endpoint;
 use AutoDocumentation\Attributes\Param;
 use AutoDocumentation\Attributes\Response;
@@ -10,6 +11,7 @@ use AutoDocumentation\Attributes\Returns;
 use ReflectionClass;
 use ReflectionMethod;
 
+#[Documentable("Handles extraction of types, methods and endpoints")]
 class DocGenerator
 {
 	public function __construct(
