@@ -2,6 +2,7 @@
 
 namespace AutoDocumentation;
 
+use AutoDocumentation\Attributes\Documentable;
 use AutoDocumentation\Generator\DocGenerator;
 use AutoDocumentation\Generator\TypeRegistry;
 use AutoDocumentation\Renderer\HtmlRenderer;
@@ -11,6 +12,7 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ReflectionClass;
 
+#[Documentable('Auto-generated documentation for your API', group: 'System')]
 class AutoDocumentation
 {
 	private TypeRegistry $registry;
