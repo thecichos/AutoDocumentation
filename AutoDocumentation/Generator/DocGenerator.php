@@ -11,7 +11,11 @@ use AutoDocumentation\Attributes\Returns;
 use ReflectionClass;
 use ReflectionMethod;
 
-#[Documentable("Handles extraction of types, methods and endpoints")]
+#[Documentable(
+	"Handles extraction of types, methods and endpoints",
+	"doc-generator",
+	"Generator"
+)]
 class DocGenerator
 {
 	public function __construct(
