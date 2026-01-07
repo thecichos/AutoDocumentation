@@ -5,6 +5,7 @@ namespace AutoDocumentation\Generator;
 use AutoDocumentation\Attributes\Documentable;
 use AutoDocumentation\Attributes\Method;
 use AutoDocumentation\Attributes\Param;
+use AutoDocumentation\Attributes\Property;
 
 #[Documentable(
 	description: 'Represents metadata and structure information about a documented type',
@@ -17,19 +18,19 @@ readonly class TypeInfo
 	 * @param PropertyInfo[] $properties
 	 */
 	public function __construct(
-		#[Param(description: 'Fully qualified class name of the type')]
+		#[Property(description: 'Fully qualified class name of the type')]
 		public string $fqcn,
-		#[Param(description: 'Short class name without namespace')]
+		#[Property(description: 'Short class name without namespace')]
 		public string $shortName,
-		#[Param(description: 'URL-friendly identifier for the type')]
+		#[Property(description: 'URL-friendly identifier for the type')]
 		public string $slug,
-		#[Param(description: 'Category group for organizing types in documentation')]
+		#[Property(description: 'Category group for organizing types in documentation')]
 		public string $group,
-		#[Param(description: 'Human-readable description of the type')]
+		#[Property(description: 'Human-readable description of the type')]
 		public string $description,
-		#[Param(description: 'List of property definitions for this type', required: false, example: '[]')]
+		#[Property(description: 'List of property definitions for this type', example: '[]')]
 		public array $properties = [],
-		#[Param(description: 'List of method definitions for this type', required: false, example: '[]')]
+		#[Property(description: 'List of method definitions for this type', example: '[]')]
 		public array $methods = []
 	) {}
 

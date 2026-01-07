@@ -14,6 +14,7 @@ use ReflectionMethod;
 class TypeRegistry
 {
 	/** @var array<class-string, TypeInfo> */
+	#[Property("List of all the collected types")]
 	private array $types = [];
 
 	#[Method('Registers a class with the #[Documentable] attribute, extracting its metadata into a TypeInfo object')]

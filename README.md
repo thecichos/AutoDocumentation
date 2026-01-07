@@ -32,13 +32,13 @@ Represents metadata about a class property for documentation purposes
 
 | Visibility | Property | Type | Description |
 |------------|----------|------|-------------|
-| Public | `name` | `string` |  |
-| Public | `type` | `string` |  |
-| Public | `nullable` | `bool` |  |
-| Public | `description` | `string` |  |
-| Public | `example` | ?`mixed` |  |
-| Public | `deprecated` | `bool` |  |
-| Public | `accessibility` | [`Accessibility`](#Accessibility-type-accessibility) |  |
+| Public | `name` | `string` | The name of the property Example: `"email"` |
+| Public | `type` | `string` | The type of the property as a string Example: `"string"` |
+| Public | `nullable` | `bool` | Whether the property can be null |
+| Public | `description` | `string` | Human-readable description of the property |
+| Public | `example` | ?`mixed` | Example value for the property |
+| Public | `deprecated` | `bool` | Whether the property is deprecated |
+| Public | `accessibility` | [`Accessibility`](#Accessibility-type-accessibility) | Visibility level of the property |
 
 ---
 
@@ -52,13 +52,13 @@ Represents metadata and structure information about a documented type
 
 | Visibility | Property | Type | Description |
 |------------|----------|------|-------------|
-| Public | `fqcn` | `string` |  |
-| Public | `shortName` | `string` |  |
-| Public | `slug` | `string` |  |
-| Public | `group` | `string` |  |
-| Public | `description` | `string` |  |
-| Public | `properties` | `array` |  |
-| Public | `methods` | `array` |  |
+| Public | `fqcn` | `string` | Fully qualified class name of the type |
+| Public | `shortName` | `string` | Short class name without namespace |
+| Public | `slug` | `string` | URL-friendly identifier for the type |
+| Public | `group` | `string` | Category group for organizing types in documentation |
+| Public | `description` | `string` | Human-readable description of the type |
+| Public | `properties` | `array` | List of property definitions for this type Example: `"[]"` |
+| Public | `methods` | `array` | List of method definitions for this type Example: `"[]"` |
 
 **Methods:**
 
@@ -79,7 +79,7 @@ Parses classes with the #[Documentable] attribute and extracts their metadata (p
 
 | Visibility | Property | Type | Description |
 |------------|----------|------|-------------|
-| Private | `types` | `array<class-string,` |  |
+| Private | `types` | `array<class-string,` | List of all the collected types |
 
 **Methods:**
 
@@ -110,11 +110,11 @@ Represents metadata about a method parameter for documentation purposes
 
 | Visibility | Property | Type | Description |
 |------------|----------|------|-------------|
-| Public | `name` | `string` |  |
-| Public | `type` | `string` |  |
-| Public | `nullable` | `bool` |  |
-| Public | `hasDefault` | `bool` |  |
-| Public | `default` | ?`mixed` |  |
+| Public | `name` | `string` | The name of the parameter Example: `"userId"` |
+| Public | `type` | `string` | The type of the parameter as a string Example: `"int"` |
+| Public | `nullable` | `bool` | Whether the parameter can be null |
+| Public | `hasDefault` | `bool` | Whether the parameter has a default value |
+| Public | `default` | ?`mixed` | The default value of the parameter, or null if none |
 
 ---
 
