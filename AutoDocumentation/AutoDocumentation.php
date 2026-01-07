@@ -140,7 +140,12 @@ class AutoDocumentation
 		if ($f === false) {
 			throw new \RuntimeException("Failed to open file for writing: $filePath");
 		}
-		fwrite($f, $this->toMarkdown($info));
+		$wrote = fwrite($f, $this->toMarkdown($info));
+
+		if ($wrote === false) {
+			throw new \RuntimeException("Failed to write to file: $filePath");
+		}
+
 		fclose($f);
 
 		return $this;
