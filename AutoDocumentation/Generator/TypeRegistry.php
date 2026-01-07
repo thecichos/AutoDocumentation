@@ -9,7 +9,7 @@ use ReflectionClass;
 use ReflectionProperty;
 use ReflectionMethod;
 
-#[Documentable('Parses classes with the #[Documentable] attribute and extracts their metadata (properties, methods, descriptions) into TypeInfo objects.', group: 'Core')]
+#[Documentable('Parses classes with the #[Documentable] attribute and extracts their metadata (properties, methods, descriptions) into TypeInfo objects.', group: 'Generator')]
 class TypeRegistry
 {
 	/** @var array<class-string, TypeInfo> */
