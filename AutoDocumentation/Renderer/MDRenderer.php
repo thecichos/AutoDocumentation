@@ -85,7 +85,7 @@ class MDRenderer
 			foreach ($groupedTypes as $group => $groupTypes) {
 				$md .= "- **{$group}**\n";
 				foreach ($groupTypes as $type) {
-					$anchor = 'type-' . $type->slug;
+					$anchor = $type->shortName.'-type-' . $type->slug;
 					$md .= "  - [{$type->shortName}](#{$anchor})\n";
 				}
 			}
