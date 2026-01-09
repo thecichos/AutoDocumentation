@@ -107,7 +107,7 @@ class TypeRegistry
 			if ($prop->getDocComment()) {
 				$docComment = $prop->getDocComment();
 			} elseif ($__construct) {
-				$docComment = self::parseParamDescription($__construct, $prop->getName());
+				$docComment = self::parseParamDescription($__construct, $prop->getName()) ?? '';
 			} else {
 				$docComment = '';
 			}
