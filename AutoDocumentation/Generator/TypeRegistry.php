@@ -2,51 +2,51 @@
 
 namespace AutoDocumentation\Generator;
 
-use AutoDocumentation\Attributes\Method;
-use AutoDocumentation\Attributes\Documentable;
-use AutoDocumentation\Attributes\Param;
-use AutoDocumentation\Attributes\Property;
 use ReflectionClass;
-use ReflectionProperty;
+use ReflectionIntersectionType;
 use ReflectionMethod;
+use ReflectionNamedType;
+use ReflectionType;
+use ReflectionUnionType;
 
-#[Documentable('Parses classes with the #[Documentable] attribute and extracts their metadata (properties, methods, descriptions) into TypeInfo objects.', group: 'Generator')]
+/**
+ * Registry for tracking documented types and resolving type links
+ *
+ * @group Generator
+ */
 class TypeRegistry
 {
 	/** @var array<class-string, TypeInfo> */
-	#[Property("List of all the collected types")]
 	private array $types = [];
 
-	#[Method('Registers a class with the #[Documentable] attribute, extracting its metadata into a TypeInfo object')]
-	public function register(
-		#[Param(description: 'Reflection of the class to register')]
-		ReflectionClass $class
-	): void
+	/**
+	 * Registers a class for documentation.
+	 * Extracts metadata from PHPDoc comments.
+	 *
+	 * PHPDoc tags supported on classes:
+	 * - @slug custom-slug (URL-friendly identifier)
+	 * - @group GroupName (category for grouping in docs)
+	 * - Description from the docblock summary
+	 */
+	public function register(ReflectionClass $class): void
 	{
-		$attr = $class->getAttributes(Documentable::class)[0] ?? null;
-
-		if (!$attr) {
-			return;
-		}
-
-		$doc = $attr->newInstance();
-
+		$docComment = $class->getDocComment() ?: '';
+		
 		$this->types[$class->getName()] = new TypeInfo(
 			fqcn: $class->getName(),
 			shortName: $class->getShortName(),
-			slug: $doc->slug ?? $this->slugify($class->getShortName()),
-			group: $doc->group,
-			description: $doc->description,
+			slug: $this->parseTag($docComment, 'slug') ?? $this->slugify($class->getShortName()),
+			group: $this->parseTag($docComment, 'group') ?? 'Models',
+			description: $this->parseDescription($docComment),
 			properties: $this->extractProperties($class),
 			methods: $this->extractMethods($class),
 		);
 	}
 
-	#[Method('Resolves a type by its fully-qualified class name or short name, returning null if not found')]
-	public function resolve(
-		#[Param(description: 'The FQCN or short name of the type to resolve', example: 'User')]
-		string $typeName
-	): ?TypeInfo
+	/**
+	 * Resolves a type by its fully-qualified class name or short name
+	 */
+	public function resolve(string $typeName): ?TypeInfo
 	{
 		// Direct FQCN match
 		if (isset($this->types[$typeName])) {
@@ -63,11 +63,10 @@ class TypeRegistry
 		return null;
 	}
 
-	#[Method('Checks whether a type name can be linked in documentation (i.e., is registered)')]
-	public function isLinkable(
-		#[Param(description: 'The type name to check for linkability', example: 'User')]
-		string $typeName
-	): bool
+	/**
+	 * Checks whether a type name can be linked in documentation
+	 */
+	public function isLinkable(string $typeName): bool
 	{
 		return $this->resolve($typeName) !== null;
 	}
@@ -75,7 +74,6 @@ class TypeRegistry
 	/**
 	 * @return array<class-string, TypeInfo>
 	 */
-	#[Method('Returns all registered types as an associative array keyed by FQCN')]
 	public function getAll(): array
 	{
 		return $this->types;
@@ -84,7 +82,6 @@ class TypeRegistry
 	/**
 	 * @return array<string, TypeInfo[]> Grouped by category
 	 */
-	#[Method('Returns all registered types grouped by their category/group name')]
 	public function getAllGrouped(): array
 	{
 		$grouped = [];
@@ -100,32 +97,35 @@ class TypeRegistry
 	/**
 	 * @return PropertyInfo[]
 	 */
-	#[Method('Extracts all properties from a class and converts them to PropertyInfo objects')]
-	private function extractProperties(
-		#[Param(description: 'Reflection of the class to extract properties from')]
-		ReflectionClass $class
-	): array
+	private function extractProperties(ReflectionClass $class): array
 	{
 		$properties = [];
 
+		$__construct = $class->getConstructor()?->getDocComment();
+
 		foreach ($class->getProperties() as $prop) {
+			if ($prop->getDocComment()) {
+				$docComment = $prop->getDocComment();
+			} elseif ($__construct) {
+				$docComment = self::parseParamDescription($__construct, $prop->getName());
+			} else {
+				$docComment = '';
+			}
+			
+			$type = $prop->getType();
+			$typeName = $this->getTypeString($type) ?? 'mixed';
+			$nullable = $type?->allowsNull() ?? true;
 
-			$attr = $prop->getAttributes(Property::class)[0] ?? null;
-			$propDoc = $attr?->newInstance();
-
-			$type = $prop->getType()?->getName() ?? 'mixed';
-			$nullable = $prop->getType()?->allowsNull() ?? true;
-
-			// Check for array type in docblock
-			$docType = $this->parseDocBlockType($prop);
+			// Check for array type in docblock via @var
+			$docType = $this->parseVarType($docComment);
 
 			$properties[] = new PropertyInfo(
 				name: $prop->getName(),
 				type: $docType ?? $type,
 				nullable: $nullable,
-				description: $propDoc?->description ?? '',
-				example: $propDoc?->example,
-				deprecated: $propDoc?->deprecated ?? false,
+				description: $this->parseDescription($docComment),
+				example: $this->parseExample($docComment),
+				deprecated: $this->hasTag($docComment, 'deprecated'),
 				accessibility: match (true) {
 					$prop->isPublic() => Accessibility::Public,
 					$prop->isProtected() => Accessibility::Protected,
@@ -137,36 +137,108 @@ class TypeRegistry
 		return $properties;
 	}
 
-	#[Method('Extracts all documented methods from a class and converts them to MethodInfo objects')]
-	private function extractMethods(
-		#[Param(description: 'Reflection of the class to extract methods from')]
-		ReflectionClass $class
-	): array {
+	/**
+	 * Converts a ReflectionType to a string representation
+	 * Handles named types, union types, and intersection types
+	 */
+	private function getTypeString(?ReflectionType $type): ?string
+	{
+		if ($type === null) {
+			return null;
+		}
+
+		if ($type instanceof ReflectionNamedType) {
+			return $type->getName();
+		}
+
+		if ($type instanceof ReflectionUnionType) {
+			$types = array_map(
+				fn(ReflectionType $t) => $this->getTypeString($t),
+				$type->getTypes()
+			);
+			return implode('|', $types);
+		}
+
+		if ($type instanceof ReflectionIntersectionType) {
+			$types = array_map(
+				fn(ReflectionType $t) => $this->getTypeString($t),
+				$type->getTypes()
+			);
+			return implode('&', $types);
+		}
+
+		return 'mixed';
+	}
+
+	/**
+	 * Resolves special type keywords (self, static, parent) to actual class names
+	 * Handles both simple types and union/intersection types
+	 */
+	private function resolveSpecialTypes(string $typeName, ReflectionClass $class): string
+	{
+		// Handle union types: Type1|Type2
+		if (str_contains($typeName, '|')) {
+			$parts = explode('|', $typeName);
+			$resolved = array_map(
+				fn($part) => $this->resolveSpecialType(trim($part), $class),
+				$parts
+			);
+			return implode('|', $resolved);
+		}
+
+		// Handle intersection types: Type1&Type2
+		if (str_contains($typeName, '&')) {
+			$parts = explode('&', $typeName);
+			$resolved = array_map(
+				fn($part) => $this->resolveSpecialType(trim($part), $class),
+				$parts
+			);
+			return implode('&', $resolved);
+		}
+
+		return $this->resolveSpecialType($typeName, $class);
+	}
+
+	/**
+	 * Resolves a single special type keyword to an actual class name
+	 */
+	private function resolveSpecialType(string $typeName, ReflectionClass $class): string
+	{
+		return match (strtolower($typeName)) {
+			'self', 'static' => $class->getName(),
+			'parent' => $class->getParentClass() ? $class->getParentClass()->getName() : $typeName,
+			default => $typeName,
+		};
+	}
+
+	/**
+	 * Extracts all public methods (excluding magic methods) from a class
+	 */
+	private function extractMethods(ReflectionClass $class): array
+	{
 		$methods = [];
 
-		foreach ($class->getMethods() as $method) {
+		foreach ($class->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
 			// Skip magic methods and constructor
 			if (str_starts_with($method->getName(), '__')) {
 				continue;
 			}
 
-			$attr = $method->getAttributes(Method::class)[0] ?? null;
-
-			// Only document methods with #[Method] attribute
-			if ($attr === null) {
+			// Skip methods from parent classes
+			if ($method->getDeclaringClass()->getName() !== $class->getName()) {
 				continue;
 			}
 
-			$methodDoc = $attr->newInstance();
+			$docComment = $method->getDocComment() ?: '';
 
 			$parameters = [];
 			foreach ($method->getParameters() as $param) {
 				$type = $param->getType();
-				$docType = $this->parseMethodParamDocBlock($method, $param->getName());
+				$docType = $this->parseParamType($docComment, $param->getName());
 
 				$parameters[] = new MethodParamInfo(
 					name: $param->getName(),
-					type: $docType ?? $type?->getName() ?? 'mixed',
+					type: (array)$docType,
 					nullable: $type?->allowsNull() ?? true,
 					hasDefault: $param->isDefaultValueAvailable(),
 					default: $param->isDefaultValueAvailable() ? $param->getDefaultValue() : null,
@@ -174,16 +246,22 @@ class TypeRegistry
 			}
 
 			$returnType = $method->getReturnType();
-			$docReturn = $this->parseMethodReturnDocBlock($method);
+			$docReturn = $this->parseReturnType($docComment);
+			
+			// Get return type string and resolve special types
+			$returnTypeName = $docReturn ?? $this->getTypeString($returnType);
+			if ($returnTypeName !== null) {
+				$returnTypeName = $this->resolveSpecialTypes($returnTypeName, $class);
+			}
 
 			$methods[] = new MethodInfo(
 				name: $method->getName(),
-				description: $methodDoc->description,
+				description: $this->parseDescription($docComment),
 				parameters: $parameters,
-				returnType: $docReturn ?? $returnType?->getName(),
-				returnDescription: $this->parseMethodReturnDescription($method),
-				example: $methodDoc->example,
-				deprecated: $methodDoc->deprecated,
+				returnType: $returnTypeName,
+				returnDescription: $this->parseReturnDescription($docComment),
+				example: $this->parseTag($docComment, 'example'),
+				deprecated: $this->hasTag($docComment, 'deprecated'),
 				isStatic: $method->isStatic(),
 				accessibility: match (true) {
 					$method->isPublic() => Accessibility::Public,
@@ -196,21 +274,75 @@ class TypeRegistry
 		return $methods;
 	}
 
-	#[Method('Parses the @param tag from a method docblock to extract the type for a specific parameter')]
-	private function parseMethodParamDocBlock(
-		#[Param(description: 'Reflection of the method containing the docblock')]
-		ReflectionMethod $method,
-		#[Param(description: 'Name of the parameter to find in the docblock', example: 'userId')]
-		string $paramName
-	): ?string
+	/**
+	 * Parses the description (summary) from a docblock
+	 */
+	private function parseDescription(string $docComment): string
 	{
-		$docComment = $method->getDocComment();
-
-		if (!$docComment) {
-			return null;
+		if (empty($docComment)) {
+			return '';
 		}
 
-		$pattern = '/@param\s+([^\s]+)\s+\$' . preg_quote($paramName, '/') . '/';
+		// Remove the opening /** and closing */
+		$content = preg_replace('/^\/\*\*|\*\/$/', '', $docComment);
+
+		// Split into lines and process
+		$lines = explode("\n", $content);
+		$description = [];
+
+		foreach ($lines as $line) {
+			// Clean the line (remove leading * and whitespace)
+			$line = preg_replace('/^\s*\*\s?/', '', $line);
+
+			// Stop at first tag
+			if (str_starts_with(trim($line), '@')) {
+				break;
+			}
+
+			$description[] = $line;
+		}
+
+		return trim(implode("\n", $description));
+	}
+
+	/**
+	 * Parses a specific tag value from a docblock
+	 */
+	private function parseTag(string $docComment, string $tag): ?string
+	{
+		if (preg_match('/@' . preg_quote($tag, '/') . '\s+(.+)$/m', $docComment, $matches)) {
+			return trim($matches[1]);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Checks if a docblock contains a specific tag
+	 */
+	private function hasTag(string $docComment, string $tag): bool
+	{
+		return (bool)preg_match('/@' . preg_quote($tag, '/') . '\b/', $docComment);
+	}
+
+	/**
+	 * Parses @var type from a property docblock
+	 */
+	private function parseVarType(string $docComment): ?string
+	{
+		if (preg_match('/@var\s+(\S+)/', $docComment, $matches)) {
+			return $matches[1];
+		}
+
+		return null;
+	}
+
+	/**
+	 * Parses @param type for a specific parameter from a method docblock
+	 */
+	private function parseParamType(string $docComment, string $paramName): ?string
+	{
+		$pattern = '/@param\s+(\S+)\s+\$' . preg_quote($paramName, '/') . '/';
 
 		if (preg_match($pattern, $docComment, $matches)) {
 			return $matches[1];
@@ -219,69 +351,60 @@ class TypeRegistry
 		return null;
 	}
 
-	#[Method('Parses the @return tag from a method docblock to extract the return type')]
-	private function parseMethodReturnDocBlock(
-		#[Param(description: 'Reflection of the method containing the docblock')]
-		ReflectionMethod $method
-	): ?string
+	private function parseParamDescription(string $docComment, string $paramName): ?string
 	{
-		$docComment = $method->getDocComment();
-
-		if (!$docComment) {
-			return null;
-		}
-
-		if (preg_match('/@return\s+([^\s]+)/', $docComment, $matches)) {
-			return $matches[1];
-		}
-
-		return null;
-	}
-
-	#[Method('Parses the @return tag from a method docblock to extract the return description')]
-	private function parseMethodReturnDescription(
-		#[Param(description: 'Reflection of the method containing the docblock')]
-		ReflectionMethod $method
-	): ?string
-	{
-		$docComment = $method->getDocComment();
-
-		if (!$docComment) {
-			return null;
-		}
-
-		if (preg_match('/@return\s+[^\s]+\s+(.+)$/m', $docComment, $matches)) {
+		$pattern = '/@param\s+\S+\s+\$' . preg_quote($paramName, '/') . '\s+(.+)$/m';
+		if (preg_match($pattern, $docComment, $matches)) {
 			return trim($matches[1]);
 		}
 
 		return null;
 	}
 
-	#[Method('Parses the @var tag from a property docblock to extract the type hint')]
-	private function parseDocBlockType(
-		#[Param(description: 'Reflection of the property containing the docblock')]
-		ReflectionProperty $prop
-	): ?string
+	/**
+	 * Parses @return type from a method docblock
+	 */
+	private function parseReturnType(string $docComment): ?string
 	{
-		$docComment = $prop->getDocComment();
-
-		if (!$docComment) {
-			return null;
-		}
-
-		// Match @var Type or @var Type[]
-		if (preg_match('/@var\s+([^\s]+)/', $docComment, $matches)) {
+		if (preg_match('/@return\s+(\S+)/', $docComment, $matches)) {
 			return $matches[1];
 		}
 
 		return null;
 	}
 
-	#[Method('Converts a PascalCase class name to a URL-friendly kebab-case slug')]
-	private function slugify(
-		#[Param(description: 'The PascalCase name to convert', example: 'UserController')]
-		string $name
-	): string
+	/**
+	 * Parses @return description from a method docblock
+	 */
+	private function parseReturnDescription(string $docComment): ?string
+	{
+		if (preg_match('/@return\s+\S+\s+(.+)$/m', $docComment, $matches)) {
+			return trim($matches[1]);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Parses @example from a docblock
+	 */
+	private function parseExample(string $docComment): mixed
+	{
+		$example = $this->parseTag($docComment, 'example');
+		
+		if ($example === null) {
+			return null;
+		}
+
+		// Try to decode as JSON for complex examples
+		$decoded = json_decode($example, true);
+		return $decoded !== null ? $decoded : $example;
+	}
+
+	/**
+	 * Converts a PascalCase class name to a URL-friendly kebab-case slug
+	 */
+	private function slugify(string $name): string
 	{
 		return strtolower(preg_replace('/(?<!^)[A-Z]/', '-$0', $name));
 	}

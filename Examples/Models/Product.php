@@ -2,33 +2,64 @@
 
 namespace Examples\Models;
 
-use AutoDocumentation\Attributes\Documentable;
-use AutoDocumentation\Attributes\Property;
-
-#[Documentable('A product in the catalog', group: 'Shop')]
+/**
+ * A product in the catalog
+ *
+ * @group Shop
+ */
 class Product
 {
-	#[Property('Unique product ID', example: 101)]
+	/**
+	 * Unique product ID
+	 * @var int
+	 * @example 101
+	 */
 	public int $id;
 
-	#[Property('Product name', example: 'Wireless Keyboard')]
+	/**
+	 * Product name
+	 * @var string
+	 * @example "Wireless Keyboard"
+	 */
 	public string $name;
 
-	#[Property('Product description')]
+	/**
+	 * Product description
+	 * @var string
+	 */
 	public string $description;
 
-	#[Property('Price in cents', example: 4999)]
+	/**
+	 * Price in cents
+	 * @var int
+	 * @example 4999
+	 */
 	public int $priceInCents;
 
-	#[Property('Stock quantity', example: 150)]
+	/**
+	 * Stock quantity
+	 * @var int
+	 * @example 150
+	 */
 	public int $stock;
 
-	#[Property('Product category')]
+	/**
+	 * Product category
+	 * @var Category
+	 */
 	public Category $category;
 
-	#[Property('Product is active', example: true)]
+	/**
+	 * Product is active
+	 * @var bool
+	 * @example true
+	 */
 	public bool $isActive;
 
-	#[Property('Old field, use priceInCents instead', deprecated: true)]
+	/**
+	 * Old field, use priceInCents instead
+	 * @var float|null
+	 * @deprecated Use priceInCents instead
+	 */
 	public ?float $price;
 }

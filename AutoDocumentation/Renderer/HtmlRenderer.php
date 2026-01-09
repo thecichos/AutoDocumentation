@@ -6,8 +6,14 @@ use AutoDocumentation\Generator\TypeInfo;
 use AutoDocumentation\Generator\TypeRegistry;
 use AutoDocumentation\Generator\TypeRenderer;
 
+/**
+ * HTML renderer for API documentation
+ *
+ * @group Renderer
+ */
 class HtmlRenderer
 {
+	/** @var TypeRenderer  */
 	private TypeRenderer $typeRenderer;
 
 	public function __construct(

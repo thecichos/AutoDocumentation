@@ -2,8 +2,6 @@
 
 namespace AutoDocumentation;
 
-use AutoDocumentation\Attributes\Documentable;
-use AutoDocumentation\Attributes\Property;
 use AutoDocumentation\Generator\DocGenerator;
 use AutoDocumentation\Generator\TypeRegistry;
 use AutoDocumentation\Renderer\HtmlRenderer;
@@ -12,8 +10,14 @@ use AutoDocumentation\Renderer\MDRenderer;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ReflectionClass;
+use ReflectionException;
 
-#[Documentable('Auto-generated documentation for your API', group: 'System')]
+
+/**
+ * Main class for generating API documentation
+ *
+ * @group AutoDocumentation
+ */
 class AutoDocumentation
 {
 	private TypeRegistry $registry;
@@ -60,6 +64,7 @@ class AutoDocumentation
 
 	/**
 	 * Scan a directory for documentable types (models/DTOs)
+	 * @throws ReflectionException
 	 */
 	public function scanTypesDirectory(string $directory, string $namespace): self
 	{

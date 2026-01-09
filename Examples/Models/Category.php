@@ -2,37 +2,66 @@
 
 namespace Examples\Models;
 
-use AutoDocumentation\Attributes\Documentable;
-use AutoDocumentation\Attributes\Method;
-use AutoDocumentation\Attributes\Property;
-use AutoDocumentation\Attributes\Returns;
-
-#[Documentable('Product category for organization', group: 'Shop')]
+/**
+ * Product category for organization
+ *
+ * @group Shop
+ */
 class Category
 {
-	#[Property('The blue number', example: 42)]
+	/**
+	 * The blue number
+	 * @var int
+	 * @example 42
+	 */
 	protected int $theBlue;
-	#[Property('The red string', example: 'foo')]
+
+	/**
+	 * The red string
+	 * @var string
+	 * @example "foo"
+	 */
 	private string $theRed;
 
-	#[Property('Category ID', example: 5)]
+	/**
+	 * Category ID
+	 * @var int
+	 * @example 5
+	 */
 	public int $id;
 
-	#[Property('Category name', example: 'Electronics')]
+	/**
+	 * Category name
+	 * @var string
+	 * @example "Electronics"
+	 */
 	public string $name;
 
-	#[Property('URL-friendly slug', example: 'electronics')]
+	/**
+	 * URL-friendly slug
+	 * @var string
+	 * @example "electronics"
+	 */
 	public string $slug;
 
-	#[Property('Parent category for nesting')]
+	/**
+	 * Parent category for nesting
+	 * @var Category|null
+	 */
 	public ?Category $parent;
 
-	#[Method('Private method for internal use')]
-	#[Returns('void')]
-	private function doingTheThing() : void {}
+	/**
+	 * Private method for internal use
+	 */
+	private function doingTheThing(): void {}
 
-	#[Method('Get the category itself')]
-	public function getCategory(): Category {
+	/**
+	 * Get the category itself
+	 *
+	 * @return Category
+	 */
+	public function getCategory(): Category
+	{
 		return $this;
 	}
 }

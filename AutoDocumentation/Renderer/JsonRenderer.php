@@ -5,6 +5,13 @@ namespace AutoDocumentation\Renderer;
 use AutoDocumentation\Generator\TypeInfo;
 use AutoDocumentation\Generator\TypeRegistry;
 
+
+/**
+ * JSON renderer for API documentation
+ *
+ * @group Renderer
+ *
+ */
 class JsonRenderer
 {
 	public function __construct(

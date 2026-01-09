@@ -5,6 +5,11 @@ namespace AutoDocumentation\Renderer;
 use AutoDocumentation\Generator\TypeInfo;
 use AutoDocumentation\Generator\TypeRegistry;
 
+/**
+ * Markdown renderer for API documentation
+ *
+ * @group Renderer
+ */
 class MDRenderer
 {
 	public function __construct(
