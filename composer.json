@@ -1,6 +1,6 @@
 {
 	"name": "thecichos/auto-documentation",
-	"description": "Automatic API and code documentation generation using PHP attributes",
+	"description": "Automatic API and code documentation generation using PHPdocs",
 	"type": "library",
 	"license": "MIT",
 	"authors": [
@@ -19,5 +19,6 @@
 		}
 	},
 	"minimum-stability": "dev",
-	"version": "1.1.0"
+	"version": "1.2.0",
+	"keywords": ["api", "documentation", "phpdocs", "documentation generation", "phpdoc", "api documentation"]
 }
