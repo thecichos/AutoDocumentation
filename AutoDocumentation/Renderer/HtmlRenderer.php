@@ -345,7 +345,7 @@ class HtmlRenderer
 			$html .= '<tbody>';
 			foreach ($type->methods as $method) {
 
-				$typeHtml = $this->typeRenderer->renderFromString($method->returnType);
+				$typeHtml = $this->typeRenderer->renderFromString($method->returnType ?: 'void');
 
 				$html .= '<tr>';
 				$html .= '<td>'.$method->accessibility->html(). '</td>';

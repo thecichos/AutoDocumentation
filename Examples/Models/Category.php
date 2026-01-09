@@ -9,6 +9,9 @@ namespace Examples\Models;
  */
 class Category
 {
+
+	public function test() {}
+
 	/**
 	 * The blue number
 	 * @var int

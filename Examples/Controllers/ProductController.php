@@ -6,18 +6,29 @@ use Examples\Models\PaginatedResult;
 use Examples\Models\Product;
 
 /**
+ *
+ * Manage products in the catalog
+ *
+ * @api-doc
+ * @tags products, accounts
+ * @version 2.0
+ *
  * @group Products
  */
 class ProductController
 {
 
 	/**
+	 *
+	 * @endpoint GET /products
+	 * @summary List products
 	 * @param int $page
 	 * @param int|null $categoryId
 	 * @param int|null $minPrice
 	 * @param int|null $maxPrice
 	 * @param bool $inStock
 	 * @return PaginatedResult
+	 * @response 401 Unauthorized - Invalid page
 	 */
 	public function index(
 		int $page = 1,
@@ -30,6 +41,8 @@ class ProductController
 	}
 
 	/**
+	 * @endpoint GET /products/{id}
+	 * @summary Get product details
 	 * @param int $id
 	 * @return Product
 	 */
@@ -40,6 +53,8 @@ class ProductController
 	}
 
 	/**
+	 * @endpoint POST /products
+	 * @summary Create a new product
 	 * @param string $name
 	 * @param string $description
 	 * @param int $priceInCents
@@ -58,6 +73,8 @@ class ProductController
 	}
 
 	/**
+	 * @endpoint PUT /products/{id}/stock
+	 * @summary Adjust product stock
 	 * @param int $id
 	 * @param int $adjustment
 	 * @return Product
@@ -70,6 +87,8 @@ class ProductController
 	}
 
 	/**
+	 * @endpoint DELETE /products/{id}
+	 * @summary Delete product
 	 * @param int $id
 	 * @deprecated
 	 */
